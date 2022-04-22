@@ -1,0 +1,43 @@
+#!/bin/bash
+: '
+Search in Google or Google Scholar a text you are selecting
+It will copy to your clipboard the words that are selected,
+then build the link to a google search or a google scholar one
+'
+
+# input arguments
+command=$1
+
+# copy selected text
+text=$(xclip -out -selection primary)
+
+# trim string
+text=$(echo $text | awk '{gsub(/^[ \t]+| [ \t]+$/,"")}1')
+
+# replace blank space with +
+text=$(echo $text | awk '{gsub(/ /,"+")}1')
+
+GoogleScholarSearch() {
+    base_scholar_left="https://scholar.google.com/scholar?hl=en&as_sdt=0%2C5&q=" 
+    base_scholar_right="&btnG="
+    url=$base_scholar_left$text$base_scholar_right # concatenate
+    xdg-open $url # open google scholar with the query using the default browser
+    echo "Searching your query on Google Scholar |(0-0)|"  
+}
+
+while getopts ":-s" option; do
+   case $option in
+      s) # display Help
+         GoogleScholarSearch
+         exit;;
+     \?) # Invalid option
+         echo "Error: Invalid option"
+         exit;;
+   esac
+done
+
+# default (no options) Search in google
+base_google="https://www.google.com/search?q="
+url=$base_google$text # concatenate
+xdg-open $url # open google with the query using the default browser
+echo "Searching your query on google (^.^)" 
